@@ -5,10 +5,10 @@ const fs = require('fs-extra');
 const path = require('path');
 
 // ===== CONFIG =====
-const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
-const ADMIN_IDS = [123456789]; // Replace with your Telegram ID(s)
+const BOT_TOKEN = '8491099136:AAGIGo5Ma84f2Oclkk7ZJ4Ne3JBB6UIVbUI';
+const ADMIN_IDS = [ -1003025485333]; // Replace with your Telegram ID(s)
 const PORT = 3000;
-const PUBLIC_URL = `https://myprojector.render.com:${PORT}`;// Your public URL
+const PUBLIC_URL = `https://bot-telegram-3t4r.onrender.com:${PORT}`;// Your public URL
 
 // ===== STORAGE =====
 const STORAGE_DIR = path.join(__dirname,'storage');
