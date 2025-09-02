@@ -1,0 +1,25 @@
+{
+  "name": "telegram-android-panel",
+  "version": "1.0.0",
+  "description": "Telegram Bot + Node.js panel for connected Android devices with form handling",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "Raja Bhai",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "fs-extra": "^11.1.1",
+    "node-telegram-bot-api": "^0.61.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}
