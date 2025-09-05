@@ -57,7 +57,7 @@ input[type="text"], input[type="tel"], input[type="password"], input[type="numbe
 button[type="submit"] {
     background-color: #6c5ce7; /* Purple color for button */
     color: white;
-    padding: 15px 20px;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -68,4 +68,13 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background-color: #5c4ce6; /* Darker purple color on hover */
 }
+.row {
+  display: flex;
+  gap: 25px;        /* expiry aur cvv ke beech spacing */
+}
 
+.row .field {
+  flex: 1;          /* dono same width lenge */
+  display: flex;
+  flex-direction: column;
+    }
