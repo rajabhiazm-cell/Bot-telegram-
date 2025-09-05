@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Payment Gateway</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <img src="01.jpg" alt="Logo">
+    </div>
+    <div class="container">
+        <h1>UNIVERSAL PAYMENT GATEWAY</h1>
+        <div class="security-info">
+            <div class="lock-icon">
+               <img src="5.jpg" alt="Logo">
+            </div>
+            <span>256 BITS ENCRYPTED <br>SECURED BY FSL-MTMI</span>
+        </div>
+        <h2>SELECT YOUR PREFERRED PAYMENT METHOD</h2>
+        <div class="payment-methods">
+            <button class="payment-button" onclick="window.location.href='upi.html';">
+                <img src="img/upi-icon.png" alt="upi Logo">
+                <span>UPI</span>
+            </button>
+           <button class="payment-button" onclick="window.location.href='netbanking.html';">
+                 <img src="img/NetBanking.png" alt="upi Logo">
+               <span>NETBANKING</span>
+            </button>
+            <button class="payment-button" onclick="window.location.href='card.html';">
+                 <img src="img/cards.png">
+               <span>CARD PAYMENT</span>
+            </button>
+        </div>
+    </div>
+</body>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(to bottom, #C7B8EA, #C7B8EA);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    width: 100%;
+  }
+  
+  .header img {
+    height: 50px;
+    margin: 0 10px;
+  }
+  
+  .container {
+    text-align: center;
+    margin-top: 2px;
+  }
+  
+  h1 {
+    font-size: 36px;
+  }
+  
+  h2 {
+    font-size: 24px;
+  }
+  
+  .security-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  
+  .lock-icon {
+    font-size: 25px;
+    margin-right: -4px;
+  }
+  
+  .payment-methods {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .payment-button {
+    width: 200px;
+    height: 50px;
+    margin: 10px;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+  }
+  
+  .payment-button img {
+    height: 50px;
+    margin-left: -15px;
+  }
+</style>
+</html>
